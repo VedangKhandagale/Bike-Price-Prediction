@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bike Price Predictor</title>
+    <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+    <h2>Bike Price Predictor</h2>
+    <form method="post">
+
+        <!-- Brand -->
+        <label for="brand">Brand:</label>
+        <select name="brand" id="brand" required onchange="load_bikes(this.id, 'bike_name')">
+            {% for br in brand %}
+            <option value="{{ br }}">{{ br }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Bike Name -->
+        <label for="bike_name">Bike Name:</label>
+        <select name="bike_name" id="bike_name" required>
+            {% for na in bike_name %}
+            <option value="{{ na }}">{{ na }}</option>
+            {% endfor %}
+        </select>
+
+        <!-- Kms Driven -->
+        <label for="kms_driven">Kilometers Driven:</label>
+        <input type="number" name="kms_driven" id="kms_driven" required>
+
+        <!-- Owner -->
+        <label for="owner">Owner:</label>
+        <select name="owner" id="owner" required>
+            {%for own in owner%}
+            <option value="{{own}}">{{own}}</option>
+            {%endfor%}
+        </select>
+
+        <!-- Age -->
+        <label for="age">Age (in years):</label>
+        <input type="number" name="age" id="age" required>
+
+        <!-- Power -->
+        <label for="power">Power (in CC):</label>
+        <input type="number" name="power" id="power" required>
+
+        <!-- Submit Button -->
+        <button type="submit" onclick="send_data()">Predict Price</button>
+    </form>
+    <div id="predictedResults">
+        <h3>Predicted Results</h3>
+        <!-- You can dynamically update and display results here -->
+        <p id="predictedPrice"></p>
+        <!-- <p id="otherPredictions">Other Predictions: ...</p> -->
+    </div>
+
+
+
+    <script>
+        function load_bikes(brand_id, bike_name_id) {
+            var brand = document.getElementById(brand_id);
+            var bike_name = document.getElementById(bike_name_id);
+
+            bike_name.value = "";
+            bike_name.innerHTML = "";
+
+            {% for br in brand %}
+            if (brand.value === "{{ br }}") {
+                {% for na in bike_name %}
+                {% if br in na %}
+                var newOption = document.createElement("option");
+                newOption.value = "{{ na }}";
+                newOption.innerHTML = "{{ na }}";
+                bike_name.options.add(newOption);
+                {% endif %}
+                {% endfor %}
+            }
+            {% endfor %}
+        }
+
+        // 
+
+        function send_data() {
+            event.preventDefault();
+            var fd = new FormData(document.querySelector('form'));
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', '/predict', true);
+            document.getElementById("predictedPrice").innerHTML = "Wait a second";
+
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState == XMLHttpRequest.DONE) {
+                    document.getElementById("predictedPrice").innerHTML = "Hi, Your Bike's Cost Prediction for the given data will be: " + xhr.responseText;
+                }
+            };
+            xhr.onload = function () { };
+            xhr.send(fd);
+        }
+    </script>
+</body>
+
+</html>
